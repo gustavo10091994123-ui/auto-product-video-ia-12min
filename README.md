@@ -29,20 +29,32 @@ Automatización completa para generar videos de productos de ~12 minutos con IA,
   - ElevenLabs
   - Google Translate API (para subtítulos)
 
-## 🔧 Instalación Rápida
+## 🔧 Instalación Rápida (3 comandos)
 
+### 1️⃣ Clonar repositorio
 ```bash
-# Clonar repositorio
 git clone https://github.com/gustavo10091994123-ui/auto-product-video-ia-12min.git
 cd auto-product-video-ia-12min
-
-# Instalar dependencias
-bash scripts/setup.sh
-
-# Configurar API Keys
-cp .env.example .env
-nano .env  # Editar con tus API keys
 ```
+
+### 2️⃣ Instalar dependencias
+```bash
+bash scripts/setup.sh
+```
+
+### 3️⃣ Configurar API Keys (NUEVO: Configurador Interactivo)
+```bash
+bash scripts/configure_env.sh
+```
+
+El script `configure_env.sh` reemplaza el flujo manual anterior (`cp .env.example .env` + `nano .env`). Ahora es:
+- ✨ **Interactivo**: Te guía paso a paso
+- 🔍 **Validador**: Verifica que las claves sean válidas
+- 🧪 **Testea las APIs**: Confirma que funcionan antes de guardar
+- 📚 **Con instrucciones**: Te muestra dónde obtener cada API key
+- 🔒 **Seguro**: Protege el archivo .env con permisos restrictivos
+
+---
 
 ## 📁 Estructura del Proyecto
 
@@ -53,6 +65,7 @@ auto-product-video-ia-12min/
 ├── .gitignore
 ├── scripts/
 │   ├── setup.sh                 # Instalación de dependencias
+│   ├── configure_env.sh         # ⭐ NEW: Configuración interactiva
 │   ├── main.sh                  # Script principal orquestador
 │   ├── search_product_info.sh   # Web scraping de características
 │   ├── generate_script.sh       # Generación de script con ChatGPT
@@ -93,7 +106,7 @@ auto-product-video-ia-12min/
 # Copiar imagen del producto
 cp /ruta/a/producto.jpg data/products/images/
 
-# Crear archivo de modelo
+# Crear archivo de modelo (opcional - se puede pasar por parámetro)
 echo "Samsung Galaxy A53" > data/products/models.txt
 ```
 
@@ -117,6 +130,74 @@ bash scripts/main.sh \
 
 ## 📊 Scripts Disponibles
 
+### setup.sh - Instalación
+Instala todas las dependencias del sistema y Python necesarias.
+
+```bash
+bash scripts/setup.sh
+```
+
+**Lo que hace:**
+- ✓ Verifica Bash 4.0+
+- ✓ Detecta el SO (Linux/macOS)
+- ✓ Instala dependencias de sistema (curl, jq, ffmpeg, etc)
+- ✓ Instala dependencias de Python
+- ✓ Crea estructura de directorios
+- ✓ Hace los scripts ejecutables
+- ✓ Configura permisos
+
+---
+
+### configure_env.sh - Configuración Interactiva ⭐ NEW
+
+Script interactivo que reemplaza `cp .env.example .env` + `nano .env`.
+
+```bash
+bash scripts/configure_env.sh
+```
+
+**Características:**
+- 🎯 Interfaz interactiva paso a paso
+- 📝 Solicita cada API key una por una
+- 🔗 Proporciona enlace directo para obtener cada key
+- ✅ Valida el formato de cada key
+- 🧪 Prueba cada API antes de guardar
+- 📋 Resumen de configuración al final
+- 🔒 Protege el archivo .env (permisos 600)
+- 📝 Genera log de configuración
+
+**Ejemplo de ejecución:**
+
+```
+╔════════════════════════════════════════════════╗
+║                                                ║
+║  🎬 AUTO PRODUCT VIDEO IA - CONFIGURACIÓN     ║
+║     Configurador Interactivo de API Keys      ║
+║                                                ║
+╚════════════════════════════════════════════════╝
+
+Este script te guiará para configurar todas las API keys necesarias.
+
+Necesitarás:
+  ✓ OpenAI API Key (ChatGPT)
+  ✓ Runway ML API Key
+  ✓ ElevenLabs API Key
+  ✓ Google Translate API Key
+
+Tiempo estimado: 5-10 minutos
+```
+
+**APIs que configura:**
+
+| # | API | Propósito | Enlace |
+|---|-----|----------|--------|
+| 1 | OpenAI | Generar scripts con ChatGPT | https://platform.openai.com/api-keys |
+| 2 | Runway ML | Generar videos | https://app.runwayml.com/ |
+| 3 | ElevenLabs | Narración en audio | https://elevenlabs.io/ |
+| 4 | Google Translate | Subtítulos multiidioma | https://cloud.google.com/translate |
+
+---
+
 ### main.sh - Script Principal
 Orquesta todo el proceso automáticamente.
 
@@ -137,6 +218,7 @@ bash scripts/main.sh \
 - `--languages`: Idiomas de subtítulos (en,ru,zh)
 - `--duration`: Duración en minutos (por defecto: 12)
 - `--verbose`: Modo verboso
+- `--help`: Mostrar ayuda
 
 ### search_product_info.sh - Búsqueda de Información
 Busca características, especificaciones, reviews en Internet.
@@ -195,7 +277,9 @@ bash scripts/generate_subtitles.sh \
 | 🇷🇺 Ruso | ru | Русский |
 | 🇨🇳 Chino Simplificado | zh | 中文 |
 
-## ⚙️ Configuración
+## ⚙️ Configuración Manual (.env)
+
+Si prefieres configurar manualmente sin el script interactivo:
 
 ### .env.example
 ```bash
@@ -223,7 +307,7 @@ TEMP_DIR="/tmp/product_video_ia"
 LOG_LEVEL="INFO"
 ```
 
-## 🔑 Configurar API Keys
+## 🔑 Obtener API Keys
 
 ### 1. OpenAI (ChatGPT)
 1. Ve a https://platform.openai.com/api-keys
@@ -232,7 +316,7 @@ LOG_LEVEL="INFO"
 
 ### 2. Runway ML
 1. Ve a https://app.runwayml.com/
-2. Obtén tu API key
+2. Obtén tu API key en Settings → API Keys
 3. Copia en `.env`: `RUNWAY_API_KEY`
 
 ### 3. ElevenLabs
@@ -255,11 +339,39 @@ tail -f data/outputs/logs/latest.log
 
 # Ver logs de una ejecución específica
 cat data/outputs/logs/2026-06-14_15-30-45.log
+
+# Ver log de configuración
+cat config_setup.log
 ```
 
 ## 🐛 Troubleshooting
 
 Ver [TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md) para solucionar problemas comunes.
+
+### Problemas Comunes
+
+**"API key no válida"**
+- Verifica que hayas copiado la clave completa
+- Asegúrate de que la API esté habilitada en tu cuenta
+- Regenera la clave en la plataforma correspondiente
+
+**"curl: command not found"**
+```bash
+# Linux
+sudo apt-get install curl
+
+# macOS
+brew install curl
+```
+
+**"ffmpeg: command not found"**
+```bash
+# Linux
+sudo apt-get install ffmpeg
+
+# macOS
+brew install ffmpeg
+```
 
 ## 📄 Licencia
 
