@@ -68,8 +68,8 @@ pause() {
 # Función para limpiar entrada
 trim() {
     local var="$@"
-    var="${var#"${var%%[![:space:]]*}"}"   # Remove leading whitespace
-    var="${var%"${var##*[![:space:]]}"}"   # Remove trailing whitespace
+    var="${var#\"${var%%[![:space:]]*}\"}"
+    var="${var%\"${var##*[![:space:]]}\"}"
     echo "$var"
 }
 
@@ -89,24 +89,12 @@ validate_not_empty() {
 validate_openai_key() {
     local key="$1"
     
-    # OpenAI keys comienzan con sk-
     if [[ $key == sk-* ]]; then
         return 0
     fi
     
     log_warning "La API key de OpenAI generalmente comienza con 'sk-'. Verifica que sea correcta."
     return 0
-}
-
-# Validar que sea una URL válida
-validate_url() {
-    local url="$1"
-    local regex="^https?://"
-    
-    if [[ $url =~ $regex ]]; then
-        return 0
-    fi
-    return 1
 }
 
 # Probar OpenAI API Key
@@ -125,7 +113,7 @@ test_openai_key() {
         }' 2>/dev/null || echo "")
     
     if echo "$response" | grep -q "error"; then
-        local error=$(echo "$response" | grep -o '"message":"[^"]*"' | cut -d'"' -f4)
+        local error=$(echo "$response" | grep -o '\"message\":\"[^\"]*\"' | cut -d'\"' -f4)
         log_error "OpenAI API error: $error"
         return 1
     fi
@@ -150,7 +138,7 @@ test_elevenlabs_key() {
         -H "Content-Type: application/json" 2>/dev/null || echo "")
     
     if echo "$response" | grep -q "error"; then
-        local error=$(echo "$response" | grep -o '"message":"[^"]*"' | cut -d'"' -f4)
+        local error=$(echo "$response" | grep -o '\"message\":\"[^\"]*\"' | cut -d'\"' -f4)
         log_error "ElevenLabs API error: $error"
         return 1
     fi
@@ -244,7 +232,6 @@ configure_openai() {
         read -p "$(echo -e ${YELLOW}¿Es correcta? (s/n): ${NC})" -r response
         
         if [[ $response =~ ^[Ss]$ ]]; then
-            # Probar la clave
             if test_openai_key "$OPENAI_API_KEY"; then
                 log_success "OpenAI configurada ✓"
                 return 0
@@ -326,7 +313,6 @@ configure_elevenlabs() {
         read -p "$(echo -e ${YELLOW}¿Es correcta? (s/n): ${NC})" -r response
         
         if [[ $response =~ ^[Ss]$ ]]; then
-            # Probar la clave
             if test_elevenlabs_key "$ELEVENLABS_API_KEY"; then
                 log_success "ElevenLabs configurada ✓"
                 return 0
@@ -375,7 +361,6 @@ configure_google_translate() {
         read -p "$(echo -e ${YELLOW}¿Es correcta? (s/n): ${NC})" -r response
         
         if [[ $response =~ ^[Ss]$ ]]; then
-            # Probar la clave
             if test_google_translate_key "$GOOGLE_TRANSLATE_API_KEY"; then
                 log_success "Google Translate configurada ✓"
                 return 0
@@ -397,7 +382,6 @@ save_env_file() {
     
     log_info "Creando archivo .env..."
     
-    # Copiar .env.example como base
     if [ -f "$ENV_EXAMPLE" ]; then
         cp "$ENV_EXAMPLE" "$ENV_FILE"
         log_success "Plantilla copiada"
@@ -406,16 +390,13 @@ save_env_file() {
         return 1
     fi
     
-    # Actualizar valores
     log_info "Actualizando API keys..."
     
-    # Función auxiliar para actualizar variables en .env (compatible con macOS)
     update_env_var() {
         local var_name="$1"
         local var_value="$2"
         local env_file="$3"
         
-        # Escapar caracteres especiales para sed
         local escaped_value=$(printf '%s\n' "$var_value" | sed -e 's/[\/&]/\\&/g')
         
         if grep -q "^${var_name}=" "$env_file"; then
@@ -433,7 +414,6 @@ save_env_file() {
     
     log_success "API keys guardadas en $ENV_FILE"
     
-    # Proteger el archivo
     chmod 600 "$ENV_FILE"
     log_success "Permisos del archivo configurados (600 - solo lectura para el propietario)"
 }
@@ -473,16 +453,14 @@ show_summary() {
 
 # Main
 main() {
-    # Crear directorio de config si no existe
     mkdir -p "$(dirname "$LOG_FILE")"
     
     log_info "Iniciando configuración..."
     
-    # Verificar si .env ya existe
     if [ -f "$ENV_FILE" ]; then
         echo -e "${YELLOW}⚠ El archivo .env ya existe.${NC}"
         echo ""
-        read -p "$(echo -e ${YELLOW}¿Deseas reemplazarlo? (s/n): ${NC})" -r response
+        read -p "$(echo -e ${YELLOW}¿Deseas reemplazarlo? \(s/n\): ${NC})" -r response
         
         if ! [[ $response =~ ^[Ss]$ ]]; then
             log_warning "Configuración cancelada"
@@ -490,10 +468,8 @@ main() {
         fi
     fi
     
-    # Mostrar bienvenida
     show_welcome
     
-    # Configurar cada API
     configure_openai
     echo ""
     
@@ -506,14 +482,11 @@ main() {
     configure_google_translate
     echo ""
     
-    # Guardar configuración
     save_env_file
     
-    # Mostrar resumen
     show_summary
     
     log_info "Log guardado en: $LOG_FILE"
 }
 
-# Ejecutar
 main "$@"
